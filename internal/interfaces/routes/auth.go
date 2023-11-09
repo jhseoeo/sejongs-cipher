@@ -4,26 +4,41 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
-	"github.com/jhseoeo/khuthon2023/internal/application/service"
+	"github.com/jhseoeo/khuthon2023/internal/application/usecase"
 )
 
-func SetAuthRoutes(authService service.AuthService, app *fiber.App) {
-	api := app.Group("/auth")
+type AuthRoutes struct {
+	authUsecase *usecase.AuthUsecase
+}
 
-	api.Post("/login", func(c *fiber.Ctx) error {
-		var req request.AuthLoginRequest
-		err := c.BodyParser(&req)
-		if err != nil {
-			return c.Status(400).JSON(response.NewErrorResponse[*struct{}](400, "Bad Request"))
-		}
-		res, err := authService.Login(c.UserContext(), req.UserId, req.Password)
-		if err != nil {
-			return c.Status(500).JSON(response.NewErrorResponse[*struct{}](500, "Internal Server Error"))
-		}
-		return c.JSON(res)
-	})
+func NewAuthRoutes(authUsecase *usecase.AuthUsecase) *AuthRoutes {
+	return &AuthRoutes{
+		authUsecase: authUsecase,
+	}
+}
 
-	api.Post("/register", func(c *fiber.Ctx) error {
-		return c.SendString("Register")
-	})
+func (r *AuthRoutes) Login(c *fiber.Ctx) error {
+	var req request.AuthLoginRequest
+	err := c.BodyParser(&req)
+	if err != nil {
+		return c.Status(400).JSON(response.NewErrorResponse[*struct{}](400, "Bad Request"))
+	}
+	res, err := r.authUsecase.Login(c.UserContext(), req)
+	if err != nil {
+		return c.Status(500).JSON(response.NewErrorResponse[*struct{}](500, "Internal Server Error"))
+	}
+	return c.JSON(res)
+}
+
+func (r *AuthRoutes) Register(c *fiber.Ctx) error {
+	var req request.AuthRegisterRequest
+	err := c.BodyParser(&req)
+	if err != nil {
+		return c.Status(400).JSON(response.NewErrorResponse[*struct{}](400, "Bad Request"))
+	}
+	res, err := r.authUsecase.Register(c.UserContext(), req)
+	if err != nil {
+		return c.Status(500).JSON(response.NewErrorResponse[*struct{}](500, "Internal Server Error"))
+	}
+	return c.JSON(res)
 }

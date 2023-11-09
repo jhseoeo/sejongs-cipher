@@ -23,12 +23,12 @@ func NewUserService(
 	}
 }
 
-func (s *UserService) Create(ctx context.Context, userId string, password string, username string) error {
+func (s *UserService) Create(ctx context.Context, userId string, password string, userName string) error {
 	id := uuid.New()
 	pwHash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
 	user := entities.User{
 		Id:       id,
-		Username: username,
+		Username: userName,
 		UserId:   userId,
 		Password: pwHash,
 	}

@@ -13,6 +13,7 @@ type UserRepositoryImpl struct {
 }
 
 func NewUserRepositoryImpl(db *gorm.DB) *UserRepositoryImpl {
+	db.AutoMigrate(&entities.User{})
 	return &UserRepositoryImpl{db: db}
 }
 
@@ -29,9 +30,9 @@ func (r *UserRepositoryImpl) FindById(ctx context.Context, id uuid.UUID) (*entit
 	return &user, nil
 }
 
-func (r *UserRepositoryImpl) FindByUserId(ctx context.Context, userid string) (*entities.User, error) {
+func (r *UserRepositoryImpl) FindByUserId(ctx context.Context, userId string) (*entities.User, error) {
 	var user entities.User
-	err := r.db.WithContext(ctx).Where("userid = ?", userid).First(&user).Error
+	err := r.db.WithContext(ctx).Where("user_id = ?", userId).First(&user).Error
 	if err != nil {
 		return nil, err
 	}

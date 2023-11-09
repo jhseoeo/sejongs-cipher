@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"context"
@@ -8,29 +8,30 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/port"
 )
 
-type AuthService struct {
+type AuthUsecase struct {
 	userService port.UserServicePort
 	jwtSecret   string
 }
 
-func NewAuthService(userService port.UserServicePort) *AuthService {
-	return &AuthService{
+func NewAuthService(userService port.UserServicePort) *AuthUsecase {
+	return &AuthUsecase{
 		userService: userService,
 		jwtSecret:   os.Getenv("JWT_SECRET"),
 	}
 }
 
-func (s *AuthService) Login(ctx context.Context, userId string, password string) (response.BaseResponse[*response.AuthLoginResponse], error) {
+func (s *AuthUsecase) Login(ctx context.Context, req request.AuthLoginRequest) (response.BaseResponse[*response.AuthLoginResponse], error) {
 	// check user exists and password is correct
-	user, err := s.userService.GetByUserId(ctx, userId)
+	user, err := s.userService.GetByUserId(ctx, req.UserId)
 	if err != nil {
 		return response.NewErrorResponse[*response.AuthLoginResponse](401, "wrong userId or password"), nil
 	}
-	passwordHash := fmt.Sprintf("%x", sha256.Sum256([]byte(password)))
+	passwordHash := fmt.Sprintf("%x", sha256.Sum256([]byte(req.Password)))
 	if user.Password != passwordHash {
 		return response.NewErrorResponse[*response.AuthLoginResponse](401, "wrong userId or password"), nil
 	}
@@ -47,4 +48,20 @@ func (s *AuthService) Login(ctx context.Context, userId string, password string)
 	}
 
 	return response.NewAuthLoginResponse(t), nil
+}
+
+func (s *AuthUsecase) Register(ctx context.Context, req request.AuthRegisterRequest) (response.BaseResponse[*struct{}], error) {
+	// check user exists
+	_, err := s.userService.GetByUserId(ctx, req.UserId)
+	if err == nil {
+		return response.NewErrorResponse[*struct{}](409, "user already exists"), nil
+	}
+
+	// register user
+	err = s.userService.Create(ctx, req.UserId, req.Password, req.UserName)
+	if err != nil {
+		return response.NewErrorResponse[*struct{}](500, "internal server error"), nil
+	}
+
+	return response.NewEmptyBaseResponse[*struct{}](), nil
 }
