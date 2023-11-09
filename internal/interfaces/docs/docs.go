@@ -111,6 +111,40 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/echo": {
+            "post": {
+                "description": "Echo",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Basic"
+                ],
+                "summary": "Echo",
+                "parameters": [
+                    {
+                        "description": "Echo",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Echo",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

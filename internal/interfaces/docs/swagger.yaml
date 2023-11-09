@@ -116,6 +116,28 @@ paths:
       summary: Register
       tags:
       - Auth
+  /echo:
+    post:
+      consumes:
+      - application/json
+      description: Echo
+      parameters:
+      - description: Echo
+        in: body
+        name: body
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Echo
+          schema:
+            type: string
+      summary: Echo
+      tags:
+      - Basic
 schemes:
 - https
 swagger: "2.0"

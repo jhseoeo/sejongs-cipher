@@ -21,7 +21,8 @@ func wireUp(app *fiber.App) error {
 	}
 
 	basicRoutes := routes.NewBasicRoutes()
-	app.Get("/api/*", basicRoutes.Docs)
+	app.Get("/api/docs/*", basicRoutes.Docs)
+	app.Post("/api/echo", basicRoutes.Echo)
 
 	userRepo := persistence.NewUserRepositoryImpl(db)
 	userService := service.NewUserService(userRepo)

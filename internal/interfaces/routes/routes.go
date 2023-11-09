@@ -26,3 +26,16 @@ func NewBasicRoutes() *BasicRoutes {
 func (r *BasicRoutes) Docs(c *fiber.Ctx) error {
 	return swagger.New(swagger.ConfigDefault)(c)
 }
+
+// Echo godoc
+// @Summary Echo
+// @Description Echo
+// @Tags Basic
+// @Accept json
+// @Produce json
+// @Param body body string true "Echo"
+// @Success 200 {string} string "Echo"
+// @Router /echo [post]
+func (r *BasicRoutes) Echo(c *fiber.Ctx) error {
+	return c.Send(c.Body())
+}
