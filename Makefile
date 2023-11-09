@@ -1,10 +1,15 @@
 BINARY_NAME=app
 
-build:
-	go build -o ./build/$(BINARY_NAME) -v
+prepare: clean
+	go mod tidy
+	go install github.com/swaggo/swag/cmd/swag@latest
+	swag init --parseDependency -g routes.go -o ./internal/interfaces/docs -d ./internal/interfaces/routes
 
-run: build
-	./build/$(BINARY_NAME)
+run: prepare
+	go run ./...
+
+build: prepare
+	go build -o ./build/ -v ./...
 
 clean:
 	go clean

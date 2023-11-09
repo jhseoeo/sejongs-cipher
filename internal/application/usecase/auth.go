@@ -50,18 +50,18 @@ func (s *AuthUsecase) Login(ctx context.Context, req request.AuthLoginRequest) (
 	return response.NewAuthLoginResponse(t), nil
 }
 
-func (s *AuthUsecase) Register(ctx context.Context, req request.AuthRegisterRequest) (response.BaseResponse[*struct{}], error) {
+func (s *AuthUsecase) Register(ctx context.Context, req request.AuthRegisterRequest) (response.BaseResponse[*response.Empty], error) {
 	// check user exists
 	_, err := s.userService.GetByUserId(ctx, req.UserId)
 	if err == nil {
-		return response.NewErrorResponse[*struct{}](409, "user already exists"), nil
+		return response.NewErrorResponse[*response.Empty](409, "user already exists"), nil
 	}
 
 	// register user
 	err = s.userService.Create(ctx, req.UserId, req.Password, req.UserName)
 	if err != nil {
-		return response.NewErrorResponse[*struct{}](500, "internal server error"), nil
+		return response.NewErrorResponse[*response.Empty](500, "internal server error"), nil
 	}
 
-	return response.NewEmptyBaseResponse[*struct{}](), nil
+	return response.NewEmptyBaseResponse[*response.Empty](), nil
 }

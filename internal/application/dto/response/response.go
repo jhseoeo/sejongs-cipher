@@ -1,8 +1,10 @@
 package response
 
 type response interface {
-	*struct{} | *AuthLoginResponse
+	*Empty | *AuthLoginResponse
 }
+
+type Empty struct{}
 
 type BaseResponse[T response] struct {
 	Ok      bool   `json:"ok"`

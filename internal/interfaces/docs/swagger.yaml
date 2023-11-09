@@ -1,0 +1,121 @@
+basePath: /api
+definitions:
+  request.AuthLoginRequest:
+    properties:
+      password:
+        type: string
+      userId:
+        type: string
+    type: object
+  request.AuthRegisterRequest:
+    properties:
+      password:
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
+  response.AuthLoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  response.BaseResponse-response_AuthLoginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.AuthLoginResponse'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  response.BaseResponse-response_Empty:
+    properties:
+      data:
+        $ref: '#/definitions/response.Empty'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  response.Empty:
+    type: object
+host: https://jhseodev1.site
+info:
+  contact: {}
+  description: Khuthon 2023 API Server
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: KHUTHON2023 API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AuthLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_AuthLoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Login
+      tags:
+      - Auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register
+      parameters:
+      - description: Register
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.AuthRegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Register
+      tags:
+      - Auth
+schemes:
+- https
+swagger: "2.0"
