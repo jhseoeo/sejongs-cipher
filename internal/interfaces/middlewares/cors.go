@@ -8,6 +8,5 @@ import (
 func NewCORSMiddleware() fiber.Handler {
 	return cors.New(cors.Config{
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
-		AllowOrigins: "http://localhost:8000",
 	})
 }
