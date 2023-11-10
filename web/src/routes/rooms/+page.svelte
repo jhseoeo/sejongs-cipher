@@ -5,7 +5,6 @@
 	import { config } from '$lib/config';
 	import { checkLogin } from '$lib/checkLogin';
 	import { onMount } from 'svelte';
-	import { goto } from '$app/navigation';
 
 	let rooms: Room[] = [];
 	const getRooms = async () => {
@@ -38,22 +37,22 @@
 		rooms = [
 			{
 				Id: '1',
-				RoomName: '방이름',
+				RoomName: '멋쟁이클럽',
 				User1: {
 					Id: '1',
-					Username: '유저1',
+					Username: '멋쟁이',
 				},
 				User2: {
 					Id: '2',
-					Username: '유저2',
+					Username: '한글대마왕',
 				},
 			},
 			{
 				Id: '2',
-				RoomName: '방이름2',
+				RoomName: '슈퍼겁쟁이클럽',
 				User1: {
 					Id: '3',
-					Username: '유저3',
+					Username: '게살버거레시피훔치다걸린사람',
 				},
 			},
 		];
@@ -70,7 +69,8 @@
 			<Actions style="display: flex; flex-direction: row-reverse">
 				<Button
 					on:click={() => {
-						goto('/rooms/' + room.Id);
+						if (i === 0) location.href = '/tetris/?roomId=asd';
+						else location.href = '/wordguess/?roomId=asd';
 					}}
 				>
 					<Label>참가</Label>

@@ -1,7 +1,11 @@
 import { config } from './config';
 
 const peerConnectionConfig = {
-	iceServers: [{ urls: 'stun:stun.stunprotocol.org:3478' }, { urls: 'stun:stun.l.google.com:19302' }],
+	iceServers: [
+		{
+			urls: ['stun:stun.l.google.com:19302'],
+		},
+	],
 };
 
 const constraints: MediaStreamConstraints = {
@@ -10,18 +14,35 @@ const constraints: MediaStreamConstraints = {
 	audio: true,
 };
 
+const mediaConstraints = {
+	offerToReceiveAudio: true,
+	offerToReceiveVideo: true,
+};
+
 export class WebRTC {
 	serverConnection: WebSocket | null = null;
 	localStream: MediaStream | null = null;
 	localVideo: HTMLVideoElement;
 	peerConnection: RTCPeerConnection | null = null;
 	userType: 'tetris' | 'wordguess' | '' = '';
+	mediaStream: MediaStream = new MediaStream();
 
 	constructor(localVideo: HTMLVideoElement, session: string, userType: 'tetris' | 'wordguess' | '') {
 		this.localVideo = localVideo;
+		this.localVideo.srcObject = this.mediaStream;
 		this.userType = userType;
 		const address = config.apiWsHost + '/api/game/signaling/' + session;
 		console.log('tries establish websocket connection on ' + address);
+		this.peerConnection = new RTCPeerConnection(peerConnectionConfig);
+		this.peerConnection.onicecandidate = (e) => {
+			this.gotIceCandidate(e);
+		};
+		this.peerConnection.ontrack = (e) => {
+			this.gotRemoteStream(e);
+		};
+		this.localStream?.getTracks().forEach((track) => {
+			this.peerConnection?.addTrack(track, this.localStream!);
+		});
 		this.serverConnection = new WebSocket(address);
 		this.serverConnection.onmessage = this.gotMessageFromServer;
 		this.serverConnection.onopen = async () => {
@@ -35,40 +56,34 @@ export class WebRTC {
 				});
 			this.serverConnection?.send(JSON.stringify({ userType: this.userType }));
 		};
-		this.peerConnection = new RTCPeerConnection(peerConnectionConfig);
-		this.peerConnection.onicecandidate = (e) => {
-			this.gotIceCandidate(e);
-		};
-		this.peerConnection.ontrack = (e) => {
-			this.gotRemoteStream(e);
-		};
-		if (this.localStream?.getTracks()[0])
-			this.peerConnection.addTrack(this.localStream?.getTracks()[0], this.localStream!);
 	}
 
-	async start() {
+	start = async () => {
 		console.log('establish connection with peer');
 		if (this.userType == 'tetris') {
 			this.peerConnection
-				?.createOffer()
+				?.createOffer(mediaConstraints)
 				.then((description) => {
 					return this.createdDescription(description);
 				})
 				.catch((e) => this.errorHandler(e));
 		}
-	}
+	};
 
-	gotIceCandidate(event: RTCPeerConnectionIceEvent) {
+	gotIceCandidate = (event: RTCPeerConnectionIceEvent) => {
+		console.log('got ice candidate');
 		if (event.candidate != null) {
 			this.serverConnection?.send(JSON.stringify({ type: 'ice', data: { ice: event.candidate } }));
 		}
-	}
+	};
 
-	async gotRemoteStream(event: RTCTrackEvent) {
-		this.localVideo.srcObject = event.streams[0];
-	}
+	gotRemoteStream = async (event: RTCTrackEvent) => {
+		console.log('got remote stream');
+		this.mediaStream.addTrack(event.track);
+		this.localVideo.srcObject = this.mediaStream;
+	};
 
-	async gotMessageFromServer(message: MessageEvent) {
+	gotMessageFromServer = async (message: MessageEvent) => {
 		const data = JSON.parse(message.data);
 
 		console.log(data);
@@ -81,14 +96,12 @@ export class WebRTC {
 			});
 
 			if (data.data.sdp.type == 'offer') {
-				this.peerConnection
-					?.createAnswer()
-					.then((description) => {
-						this.createdDescription(description);
-					})
-					.catch((e) => {
-						this.errorHandler(e);
-					});
+				console.log('offer', this.peerConnection);
+				const description = await this.peerConnection?.createAnswer(mediaConstraints).catch((e) => {
+					this.errorHandler(e);
+				});
+				console.log(description);
+				this.createdDescription(description!);
 			} else if (data.data.sdp.type == 'answer') {
 				console.log('answer');
 			}
@@ -97,9 +110,9 @@ export class WebRTC {
 				this.errorHandler(e);
 			});
 		}
-	}
+	};
 
-	createdDescription(description: RTCSessionDescriptionInit) {
+	createdDescription = (description: RTCSessionDescriptionInit) => {
 		this.peerConnection
 			?.setLocalDescription(description)
 			.then(() => {
@@ -112,9 +125,14 @@ export class WebRTC {
 				);
 			})
 			.catch(this.errorHandler);
-	}
+	};
 
-	errorHandler(error: Error) {
+	errorHandler = (error: Error) => {
 		console.log(error);
-	}
+	};
+
+	currentState = () => {
+		console.log(this.peerConnection?.signalingState, this.peerConnection?.connectionState);
+		return this.peerConnection?.signalingState;
+	};
 }

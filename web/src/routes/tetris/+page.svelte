@@ -21,6 +21,11 @@
 				webRTC.start();
 			}}>시작</button
 		>
+		<button
+			on:click={() => {
+				webRTC.currentState();
+			}}>상태</button
+		>
 		<video id="localVideo" autoplay muted width="600" height="400" bind:this={localVideo} />
 	</div>
 	<div class="game">
