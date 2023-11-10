@@ -125,7 +125,7 @@ func (r *GameRoutes) VerifyWord(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
 	}
-	return c.JSON(res)
+	return c.JSON(res.Data)
 }
 
 func (r *GameRoutes) Signaling() func(c *fiber.Ctx) error {
