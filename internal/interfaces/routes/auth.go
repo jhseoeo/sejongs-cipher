@@ -64,3 +64,18 @@ func (r *AuthRoutes) Register(c *fiber.Ctx) error {
 	}
 	return c.JSON(res)
 }
+
+// Check godoc
+// @Summary Check
+// @Description Check
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Success 200 {object} response.BaseResponse[response.Empty]
+// @Failure 401 {object} response.BaseResponse[response.Empty]
+// @Failure 500 {object} response.BaseResponse[response.Empty]
+// @Router /auth/check [get]
+func (r *AuthRoutes) Check(c *fiber.Ctx) error {
+	return c.JSON(response.NewEmptyBaseResponse[*response.Empty]())
+}

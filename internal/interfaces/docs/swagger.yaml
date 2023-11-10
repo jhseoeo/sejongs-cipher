@@ -75,6 +75,11 @@ definitions:
       roomId:
         type: string
     type: object
+  request.GameTestWordRequest:
+    properties:
+      word:
+        type: string
+    type: object
   request.GetRanksRequest:
     properties:
       page:
@@ -122,6 +127,17 @@ definitions:
       status:
         type: integer
     type: object
+  response.BaseResponse-response_GameTestWordResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.GameTestWordResponse'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
   response.BaseResponse-response_GetRanksResponse:
     properties:
       data:
@@ -157,6 +173,13 @@ definitions:
     type: object
   response.Empty:
     type: object
+  response.GameTestWordResponse:
+    properties:
+      description:
+        type: string
+      isCorrect:
+        type: boolean
+    type: object
   response.GetRanksResponse:
     properties:
       scores:
@@ -184,7 +207,7 @@ definitions:
           $ref: '#/definitions/entities.Room'
         type: array
     type: object
-host: jhseodev1.site
+host: localhost:8000
 info:
   contact: {}
   description: Khuthon 2023 API Server
@@ -195,6 +218,31 @@ info:
   title: KHUTHON2023 API
   version: "1.0"
 paths:
+  /auth/check:
+    get:
+      consumes:
+      - application/json
+      description: Check
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      security:
+      - ApiKeyAuth: []
+      summary: Check
+      tags:
+      - Auth
   /auth/login:
     post:
       consumes:
@@ -367,6 +415,36 @@ paths:
       summary: Game Start
       tags:
       - Game
+  /game/verify:
+    post:
+      consumes:
+      - application/json
+      description: Game VerifyWord
+      parameters:
+      - description: Game VerifyWord
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.GameTestWordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_GameTestWordResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Game VerifyWord
+      tags:
+      - Game
   /room:
     get:
       consumes:
@@ -477,5 +555,5 @@ paths:
       tags:
       - Room
 schemes:
-- https
+- http
 swagger: "2.0"

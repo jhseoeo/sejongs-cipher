@@ -3,12 +3,13 @@
 	import HelperText from '@smui/textfield/helper-text';
 	import Button, { Label } from '@smui/button';
 	import { goto } from '$app/navigation';
+	import { config } from '$lib/config';
 
 	let userId = '';
 	let password = '';
 
 	const Login = async () => {
-		const res = await fetch('/api/auth/login', {
+		const res = await fetch(config.apiHost + '/api/auth/login', {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',
@@ -23,6 +24,10 @@
 
 		if (res.ok === false) {
 			alert('로그인실패 ㅠㅠ');
+		} else {
+			alert('로그인성공!');
+			localStorage.setItem('token', res.data.token);
+			goto('/');
 		}
 	};
 </script>

@@ -1,7 +1,7 @@
 package signaling
 
 import (
-	ws "github.com/gofiber/websocket/v2"
+	ws "github.com/gofiber/contrib/websocket"
 )
 
 type SessionName string

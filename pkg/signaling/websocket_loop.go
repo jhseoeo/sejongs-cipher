@@ -3,7 +3,7 @@ package signaling
 import (
 	"fmt"
 
-	ws "github.com/gofiber/websocket/v2"
+	ws "github.com/gofiber/contrib/websocket"
 )
 
 // When a client has connected, client send its uuid.

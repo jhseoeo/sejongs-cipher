@@ -15,7 +15,7 @@ type BasicRoutes struct{}
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host jhseodev1.site
+// @docs jhseodev1.site
 // @BasePath /api
 // @schemes https
 

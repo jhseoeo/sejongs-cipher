@@ -2,16 +2,19 @@ package usecase
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-errors/errors"
 	"github.com/google/uuid"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/port"
+	"github.com/jhseoeo/khuthon2023/internal/infrastructure/rest"
 )
 
 // GameUsecase is a usecase for game
 type GameUsecase struct {
+	restClient   *rest.Client
 	userService  port.UserServicePort
 	roomService  port.RoomServicePort
 	scoreService port.ScoreServicePort
@@ -24,6 +27,7 @@ func NewGameUsecase(
 	scoreService port.ScoreServicePort,
 ) *GameUsecase {
 	return &GameUsecase{
+		restClient:   rest.NewClient(),
 		userService:  userService,
 		roomService:  roomService,
 		scoreService: scoreService,
@@ -89,4 +93,40 @@ func (g *GameUsecase) GetRanks(ctx context.Context, req request.GetRanksRequest)
 			errors.Errorf("failed to get scores: %w", err)
 	}
 	return response.NewGetRanksResponse(scores), nil
+}
+
+// VerifyWord verifies a word
+func (g *GameUsecase) VerifyWord(ctx context.Context, req request.GameTestWordRequest) (response.BaseResponse[*response.GameTestWordResponse], error) {
+	url := "https://ko.dict.naver.com/api3/koko/search?query=" + req.Word + "&m=pc&range=word&page=1"
+	respBytes, err := g.restClient.Get(ctx, url, "")
+	if err != nil {
+		return response.NewErrorResponse[*response.GameTestWordResponse](500, "Internal Server Error"),
+			errors.Errorf("failed to get response: %w", err)
+	}
+
+	var respMap map[string]interface{}
+	err = json.Unmarshal(respBytes, &respMap)
+	if err != nil {
+		return response.NewErrorResponse[*response.GameTestWordResponse](500, "Internal Server Error"),
+			errors.Errorf("failed to unmarshal response: %w", err)
+	}
+	searchResultMap := respMap["searchResultMap"].(map[string]interface{})
+	searchResultList := searchResultMap["searchResultListMap"].(map[string]interface{})
+	searchResult := searchResultList["WORD"].(map[string]interface{})
+	searchResultItems := searchResult["items"].([]interface{})
+	if len(searchResultItems) == 0 {
+		return response.NewGameTestWordResponse(false, ""), nil
+	}
+
+	// compare word with first item
+	item := searchResultItems[0].(map[string]interface{})
+	itemWord := item["handleEntry"].(string)
+	if itemWord != req.Word {
+		return response.NewGameTestWordResponse(false, ""), nil
+	}
+
+	// get word's meaning
+	itemMeaning := item["meansCollector"].([]interface{})[0].(map[string]interface{})
+	means := itemMeaning["means"].([]interface{})[0].(map[string]interface{})["value"].(string)
+	return response.NewGameTestWordResponse(true, means), nil
 }

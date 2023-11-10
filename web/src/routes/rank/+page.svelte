@@ -1,14 +1,17 @@
 <script lang="ts">
+	import { checkLogin } from '$lib/checkLogin';
+	import { config } from '$lib/config';
 	import type { Score } from '$lib/types';
 	import Paper, { Title, Content } from '@smui/paper';
 	import { onMount } from 'svelte';
 
 	let scores: Score[] = [];
 	const getRanks = async () => {
-		const res = await fetch('/api/game/rank', {
+		const res = await fetch(config.apiHost + '/api/game/ranks', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
+				Authorization: 'Bearer ' + localStorage.getItem('token') ?? '',
 			},
 			body: JSON.stringify({
 				page: 1,
@@ -20,38 +23,18 @@
 		if (res.ok === false) {
 			alert('랭킹불러오기실패 ㅠㅠ');
 		} else {
-			scores = res.scores;
+			scores = res.data.scores;
 		}
 	};
 
 	onMount(() => {
-		// getRanks();
-		scores = [
-			{
-				Id: '1',
-				Score: 100,
-				User1: {
-					Id: '1',
-					Username: 'user1',
-				},
-				User2: {
-					Id: '2',
-					Username: 'user2',
-				},
-			},
-			{
-				Id: '2',
-				Score: 90,
-				User1: {
-					Id: '3',
-					Username: 'user3',
-				},
-				User2: {
-					Id: '4',
-					Username: 'user4',
-				},
-			},
-		];
+		checkLogin().then((logged_in) => {
+			if (logged_in === false) {
+				alert('로그인이 필요합니다.');
+				location.href = '/login';
+			}
+			getRanks();
+		});
 	});
 </script>
 

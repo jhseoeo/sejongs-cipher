@@ -16,3 +16,20 @@ func NewGetRanksResponse(scores []entities.Score) BaseResponse[*GetRanksResponse
 		},
 	}
 }
+
+type GameTestWordResponse struct {
+	IsCorrect   bool   `json:"isCorrect"`
+	Description string `json:"description"`
+}
+
+func NewGameTestWordResponse(isCorrect bool, description string) BaseResponse[*GameTestWordResponse] {
+	return BaseResponse[*GameTestWordResponse]{
+		Ok:      true,
+		Status:  200,
+		Message: "success",
+		Data: &GameTestWordResponse{
+			IsCorrect:   isCorrect,
+			Description: description,
+		},
+	}
+}

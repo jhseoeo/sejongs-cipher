@@ -14,3 +14,7 @@ type GameEndRequest struct {
 type GetRanksRequest struct {
 	Page int `json:"page"`
 }
+
+type GameTestWordRequest struct {
+	Word string `json:"word"`
+}

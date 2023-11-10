@@ -3,6 +3,7 @@
 	import HelperText from '@smui/textfield/helper-text';
 	import Button, { Label } from '@smui/button';
 	import { goto } from '$app/navigation';
+	import { config } from '$lib/config';
 
 	let userId = '';
 	let userName = '';
@@ -24,7 +25,7 @@
 			return;
 		}
 
-		const res = await fetch('/api/auth/register', {
+		const res = await fetch(config.apiHost + '/api/auth/register', {
 			method: 'POST',
 			headers: {
 				'content-type': 'application/json',

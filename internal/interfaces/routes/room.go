@@ -1,25 +1,22 @@
 package routes
 
 import (
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/websocket/v2"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/usecase"
-	"github.com/jhseoeo/khuthon2023/pkg/signaling"
 )
 
 type RoomRoutes struct {
-	hub         *signaling.Hub
 	roomUsecase *usecase.RoomUsecase
 }
 
 func NewRoomRoutes(roomUsecase *usecase.RoomUsecase) *RoomRoutes {
 
 	return &RoomRoutes{
-		hub:         signaling.CreateHub(),
 		roomUsecase: roomUsecase,
 	}
 }
@@ -124,6 +121,6 @@ func (r *RoomRoutes) Leave(c *fiber.Ctx) error {
 
 func (r *RoomRoutes) WS(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		signaling.WebsocketConnectionLoop(r.hub, ws)
+		// TODO: implement
 	})(c)
 }

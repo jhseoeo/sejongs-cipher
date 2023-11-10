@@ -1,20 +1,24 @@
 package routes
 
 import (
+	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/usecase"
+	"github.com/jhseoeo/khuthon2023/pkg/signaling"
 )
 
 type GameRoutes struct {
+	hub         *signaling.Hub
 	gameUsecase *usecase.GameUsecase
 }
 
 func NewGameRoutes(gameUsecase *usecase.GameUsecase) *GameRoutes {
 	return &GameRoutes{
+		hub:         signaling.CreateHub(),
 		gameUsecase: gameUsecase,
 	}
 }
@@ -95,4 +99,40 @@ func (r *GameRoutes) Ranks(c *fiber.Ctx) error {
 		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
 	}
 	return c.JSON(res)
+}
+
+// Game VerifyWord godoc
+// @Summary Game VerifyWord
+// @Description Game VerifyWord
+// @Tags Game
+// @Accept json
+// @Produce json
+// @Param body body request.GameTestWordRequest true "Game VerifyWord"
+// @Success 200 {object} response.BaseResponse[response.GameTestWordResponse]
+// @Failure 400 {object} response.BaseResponse[response.Empty]
+// @Failure 500 {object} response.BaseResponse[response.Empty]
+// @Router /game/verify [post]
+func (r *GameRoutes) VerifyWord(c *fiber.Ctx) error {
+	var req request.GameTestWordRequest
+	err := c.BodyParser(&req)
+	if err != nil {
+		return c.Status(400).JSON(response.NewErrorResponse[*response.Empty](400, "Bad Request"))
+	}
+	res, err := r.gameUsecase.VerifyWord(c.UserContext(), req)
+	if err != nil {
+		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
+	}
+	return c.JSON(res)
+}
+
+func (r *GameRoutes) Signaling(c *fiber.Ctx) error {
+	return websocket.New(func(ws *websocket.Conn) {
+		signaling.WebsocketConnectionLoop(r.hub, ws)
+	})(c)
+}
+
+func (r *GameRoutes) WS(c *fiber.Ctx) error {
+	return websocket.New(func(ws *websocket.Conn) {
+		// TODO: implement
+	})(c)
 }

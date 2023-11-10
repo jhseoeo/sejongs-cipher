@@ -38,6 +38,7 @@ func wireUp(app *fiber.App) error {
 	auth := api.Group("/auth")
 	auth.Post("/login", authRoutes.Login)
 	auth.Post("/register", authRoutes.Register)
+	auth.Get("/check", jwtMiddleware, authRoutes.Check)
 
 	roomService := service.NewRoomService()
 	roomUsecase := usecase.NewRoomUsecase(userService, roomService)
@@ -57,6 +58,7 @@ func wireUp(app *fiber.App) error {
 	game.Post("/start", gameRoutes.Start)
 	game.Post("/end", gameRoutes.End)
 	game.Post("/ranks", gameRoutes.Ranks)
+	game.Post("/verify", gameRoutes.VerifyWord)
 
 	return nil
 }
