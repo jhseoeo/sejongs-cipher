@@ -8,18 +8,21 @@ import (
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/usecase"
+	"github.com/jhseoeo/khuthon2023/pkg/gameWs"
 	"github.com/jhseoeo/khuthon2023/pkg/signaling"
 )
 
 type GameRoutes struct {
-	hub         *signaling.Hub
-	gameUsecase *usecase.GameUsecase
+	signalingHub *signaling.Hub
+	gameWsHub    *gameWs.Hub
+	gameUsecase  *usecase.GameUsecase
 }
 
 func NewGameRoutes(gameUsecase *usecase.GameUsecase) *GameRoutes {
 	return &GameRoutes{
-		hub:         signaling.CreateHub(),
-		gameUsecase: gameUsecase,
+		signalingHub: signaling.CreateHub(),
+		gameWsHub:    gameWs.CreateHub(),
+		gameUsecase:  gameUsecase,
 	}
 }
 
@@ -127,12 +130,12 @@ func (r *GameRoutes) VerifyWord(c *fiber.Ctx) error {
 
 func (r *GameRoutes) Signaling(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		signaling.WebsocketConnectionLoop(r.hub, ws)
+		signaling.WebsocketConnectionLoop(r.signalingHub, ws)
 	})(c)
 }
 
 func (r *GameRoutes) WS(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		// TODO: implement
+		gameWs.WebsocketConnectionLoop(r.gameWsHub, ws)
 	})(c)
 }

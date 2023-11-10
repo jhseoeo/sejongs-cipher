@@ -6,43 +6,52 @@ import (
 	ws "github.com/gofiber/contrib/websocket"
 )
 
+type userType string // tetris, wordguess
+
+type userJoinMessage struct {
+	UserType string `json:"userType"`
+	RoomId   string `json:"roomId"`
+}
+
 // When a client has connected, client send its uuid.
 // Get uuid from this message.
-func getUUID(conn *ws.Conn) (UUIDType, error) {
-	var messageData MessageData
+func handleUserJoin(hub *Hub, conn *ws.Conn, sessionName SessionName) (userType, error) {
+	var messageData userJoinMessage
 	err := conn.ReadJSON(&messageData)
-
 	if err != nil {
 		if ws.IsUnexpectedCloseError(err, ws.CloseGoingAway, ws.CloseAbnormalClosure) {
 			fmt.Println("read error:", err)
 		}
-
 		return "", err
-	} else if messageData.Type != "join" {
-		return "", fmt.Errorf("unexpected message type. expected 'join' but got %s", messageData.Type)
 	}
 
-	return messageData.SrcUUID, nil
+	if messageData.UserType == "tetris" {
+		hub.JoinTetrisUser(sessionName, conn)
+	} else if messageData.UserType == "wordguess" {
+		hub.JoinWordGuessUser(sessionName, conn)
+	} else {
+		return "", fmt.Errorf("invalid user type: %s", messageData.UserType)
+	}
+
+	return userType(messageData.UserType), nil
 }
 
 // Websocket Session Loop for each client
 func WebsocketConnectionLoop(hub *Hub, conn *ws.Conn) {
 	session := SessionName(conn.Params("session"))
-
-	uuid, err := getUUID(conn)
+	user, err := handleUserJoin(hub, conn, session)
 	if err != nil {
-		fmt.Println("an error occurred getting uuid:", err)
+		fmt.Println("an error occurred while handling user join:", err)
 		conn.Close()
 	}
 
-	fmt.Printf("user %s joined on %s\n", uuid, session)
-
-	client := Client{Conn: conn}
-	hub.RegisterUser(session, uuid, client) // add current user's information to users list
+	fmt.Printf("%s user joined on %s\n", user, session)
 
 	defer func() { // when user leaves
-		fmt.Printf("user %s leaved from %s\n", uuid, session)
-		hub.UnregisterUser(session, uuid, client) // delete current user's information from users list
+		fmt.Printf("%s user leaved from %s\n", user, session)
+		if user == "tetris" {
+			hub.LeaveUser(session)
+		}
 		conn.Close()
 	}()
 
@@ -57,6 +66,18 @@ func WebsocketConnectionLoop(hub *Hub, conn *ws.Conn) {
 			return
 		}
 
-		hub.SendSignallingMessage(session, uuid, messageData)
+		if user == "tetris" {
+			err := hub.SendTetrisSignalingMessage(session, messageData)
+			if err != nil {
+				fmt.Println("an error occurred while sending tetris signaling message:", err)
+			}
+		} else if user == "wordguess" {
+			err := hub.SendWordGuessSignalingMessage(session, messageData)
+			if err != nil {
+				fmt.Println("an error occurred while sending wordguess signaling message:", err)
+			}
+		} else {
+			fmt.Println("invalid user type:", user)
+		}
 	}
 }

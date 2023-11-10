@@ -207,7 +207,6 @@ definitions:
           $ref: '#/definitions/entities.Room'
         type: array
     type: object
-host: localhost:8000
 info:
   contact: {}
   description: Khuthon 2023 API Server
@@ -555,5 +554,5 @@ paths:
       tags:
       - Room
 schemes:
-- http
+- https
 swagger: "2.0"
