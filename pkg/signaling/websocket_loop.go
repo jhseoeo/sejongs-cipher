@@ -26,7 +26,7 @@ func handleUserJoin(hub *Hub, conn *ws.Conn, sessionName SessionName) (userType,
 
 	if messageData.UserType == "tetris" {
 		hub.JoinTetrisUser(sessionName, conn)
-	} else if messageData.UserType == "lettergame" {
+	} else if messageData.UserType == "wordguess" {
 		hub.JoinWordGuessUser(sessionName, conn)
 	} else {
 		return "", fmt.Errorf("invalid user type: %s", messageData.UserType)
@@ -72,7 +72,7 @@ func WebsocketConnectionLoop(hub *Hub, conn *ws.Conn) {
 			if err != nil {
 				fmt.Println("an error occurred while sending tetris signaling message:", err)
 			}
-		} else if user == "lettergame" {
+		} else if user == "wordguess" {
 			err := hub.SendWordGuessSignalingMessage(session, messageData)
 			if err != nil {
 				fmt.Println("an error occurred while sending wordguess signaling message:", err)
