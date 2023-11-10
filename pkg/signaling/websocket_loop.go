@@ -10,7 +10,6 @@ type userType string // tetris, wordguess
 
 type userJoinMessage struct {
 	UserType string `json:"userType"`
-	RoomId   string `json:"roomId"`
 }
 
 // When a client has connected, client send its uuid.
