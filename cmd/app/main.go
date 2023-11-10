@@ -59,7 +59,7 @@ func wireUp(app *fiber.App) error {
 	game.Post("/end", gameRoutes.End)
 	game.Post("/ranks", gameRoutes.Ranks)
 	game.Post("/verify", gameRoutes.VerifyWord)
-	game.Get("/ws", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.WS)
+	game.Get("/ws/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.WS)
 	game.Get("/signaling/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.Signaling)
 
 	return nil
