@@ -119,8 +119,8 @@ func (r *RoomRoutes) Leave(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (r *RoomRoutes) WS(c *fiber.Ctx) error {
+func (r *RoomRoutes) WS() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
 		// TODO: implement
-	})(c)
+	})
 }

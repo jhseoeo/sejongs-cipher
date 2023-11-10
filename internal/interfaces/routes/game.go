@@ -128,14 +128,14 @@ func (r *GameRoutes) VerifyWord(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-func (r *GameRoutes) Signaling(c *fiber.Ctx) error {
+func (r *GameRoutes) Signaling() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
 		signaling.WebsocketConnectionLoop(r.signalingHub, ws)
-	})(c)
+	})
 }
 
-func (r *GameRoutes) WS(c *fiber.Ctx) error {
+func (r *GameRoutes) WS() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
 		gameWs.WebsocketConnectionLoop(r.gameWsHub, ws)
-	})(c)
+	})
 }

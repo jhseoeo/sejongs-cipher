@@ -48,7 +48,7 @@ func wireUp(app *fiber.App) error {
 	room.Get("/", roomRoutes.GetList)
 	room.Post("/", roomRoutes.Join)
 	room.Post("/leave", roomRoutes.Leave)
-	api.Get("/room/ws/:roomId", middlewares.NewWebsocketUpgradeMiddleware(), roomRoutes.WS)
+	api.Get("/room/ws/:roomId", middlewares.NewWebsocketUpgradeMiddleware(), roomRoutes.WS())
 
 	scoreRepo := persistence.NewScoreRepositoryImpl(db)
 	scoreService := service.NewScoreService(scoreRepo)
@@ -59,8 +59,8 @@ func wireUp(app *fiber.App) error {
 	game.Post("/end", gameRoutes.End)
 	game.Post("/ranks", gameRoutes.Ranks)
 	game.Post("/verify", gameRoutes.VerifyWord)
-	api.Get("/game/ws/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.WS)
-	api.Get("/game/signaling/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.Signaling)
+	api.Get("/game/ws/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.WS())
+	api.Get("/game/signaling/:session", middlewares.NewWebsocketUpgradeMiddleware(), gameRoutes.Signaling())
 
 	return nil
 }
