@@ -11,7 +11,9 @@ type Score struct {
 	Id        uuid.UUID `gorm:"type:uuid;"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	User1     User
-	User2     User
+	User1Id   uuid.UUID `gorm:"type:uuid;"`
+	User2Id   uuid.UUID `gorm:"type:uuid;"`
+	User1     User      `gorm:"foreignKey:User1Id;"`
+	User2     User      `gorm:"foreignKey:User2Id;"`
 	Score     int
 }

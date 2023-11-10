@@ -491,8 +491,14 @@ const docTemplate = `{
                 "user1": {
                     "$ref": "#/definitions/entities.User"
                 },
+                "user1Id": {
+                    "type": "string"
+                },
                 "user2": {
                     "$ref": "#/definitions/entities.User"
+                },
+                "user2Id": {
+                    "type": "string"
                 }
             }
         },
