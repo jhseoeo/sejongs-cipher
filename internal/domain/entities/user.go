@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// User is a user
 type User struct {
 	Id        uuid.UUID `gorm:"type:uuid"`
 	CreatedAt time.Time

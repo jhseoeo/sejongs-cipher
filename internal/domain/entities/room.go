@@ -1,17 +1,14 @@
 package entities
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
+// Room is a room
 type Room struct {
-	Id        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	Id        uuid.UUID
 	RoomName  string
-	RoomType  string
+	IsPlaying bool
 	User1     User
-	User2     User
+	User2     *User
 }

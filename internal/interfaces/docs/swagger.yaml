@@ -1,5 +1,48 @@
 basePath: /api
 definitions:
+  entities.Room:
+    properties:
+      id:
+        type: string
+      isPlaying:
+        type: boolean
+      roomName:
+        type: string
+      user1:
+        $ref: '#/definitions/entities.User'
+      user2:
+        $ref: '#/definitions/entities.User'
+    type: object
+  entities.Score:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      score:
+        type: integer
+      updatedAt:
+        type: string
+      user1:
+        $ref: '#/definitions/entities.User'
+      user2:
+        $ref: '#/definitions/entities.User'
+    type: object
+  entities.User:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+      updatedAt:
+        type: string
+      userId:
+        type: string
+      username:
+        type: string
+    type: object
   request.AuthLoginRequest:
     properties:
       password:
@@ -14,6 +57,38 @@ definitions:
       userId:
         type: string
       userName:
+        type: string
+    type: object
+  request.GameEndRequest:
+    properties:
+      roomId:
+        type: string
+      score:
+        type: integer
+    type: object
+  request.GameStartRequest:
+    properties:
+      roomId:
+        type: string
+    type: object
+  request.GetRanksRequest:
+    properties:
+      page:
+        type: integer
+    type: object
+  request.RoomCreateRequest:
+    properties:
+      roomName:
+        type: string
+    type: object
+  request.RoomJoinRequest:
+    properties:
+      roomId:
+        type: string
+    type: object
+  request.RoomLeaveRequest:
+    properties:
+      roomId:
         type: string
     type: object
   response.AuthLoginResponse:
@@ -43,9 +118,69 @@ definitions:
       status:
         type: integer
     type: object
+  response.BaseResponse-response_GetRanksResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.GetRanksResponse'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  response.BaseResponse-response_RoomCreateResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.RoomCreateResponse'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
+  response.BaseResponse-response_RoomGetListResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.RoomGetListResponse'
+      message:
+        type: string
+      ok:
+        type: boolean
+      status:
+        type: integer
+    type: object
   response.Empty:
     type: object
-host: https://jhseodev1.site
+  response.GetRanksResponse:
+    properties:
+      scores:
+        items:
+          $ref: '#/definitions/entities.Score'
+        type: array
+    type: object
+  response.RoomCreateResponse:
+    properties:
+      id:
+        type: string
+      isPlaying:
+        type: boolean
+      roomName:
+        type: string
+      user1:
+        $ref: '#/definitions/entities.User'
+      user2:
+        $ref: '#/definitions/entities.User'
+    type: object
+  response.RoomGetListResponse:
+    properties:
+      rooms:
+        items:
+          $ref: '#/definitions/entities.Room'
+        type: array
+    type: object
+host: jhseodev1.site
 info:
   contact: {}
   description: Khuthon 2023 API Server
@@ -138,6 +273,205 @@ paths:
       summary: Echo
       tags:
       - Basic
+  /game/end:
+    post:
+      consumes:
+      - application/json
+      description: Game End
+      parameters:
+      - description: Game End
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.GameEndRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Game End
+      tags:
+      - Game
+  /game/ranks:
+    post:
+      consumes:
+      - application/json
+      description: Game GetRanks
+      parameters:
+      - description: Game GetRanks
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.GetRanksRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_GetRanksResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Game GetRanks
+      tags:
+      - Game
+  /game/start:
+    post:
+      consumes:
+      - application/json
+      description: Game Start
+      parameters:
+      - description: Game Start
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.GameStartRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Game Start
+      tags:
+      - Game
+  /room:
+    get:
+      consumes:
+      - application/json
+      description: Room GetList
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_RoomGetListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Room GetList
+      tags:
+      - Room
+  /room/create:
+    post:
+      consumes:
+      - application/json
+      description: Room Create
+      parameters:
+      - description: Room Create
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RoomCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_RoomCreateResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Room Create
+      tags:
+      - Room
+  /room/join:
+    post:
+      consumes:
+      - application/json
+      description: Room Join
+      parameters:
+      - description: Room Join
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RoomJoinRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Room Join
+      tags:
+      - Room
+  /room/leave:
+    post:
+      consumes:
+      - application/json
+      description: Room Leave
+      parameters:
+      - description: Room Leave
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/request.RoomLeaveRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.BaseResponse-response_Empty'
+      summary: Room Leave
+      tags:
+      - Room
 schemes:
 - https
 swagger: "2.0"

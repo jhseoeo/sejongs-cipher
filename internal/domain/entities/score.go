@@ -6,8 +6,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// Score is a score
 type Score struct {
-	Id        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()"`
+	Id        uuid.UUID `gorm:"type:uuid;"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	User1     User

@@ -145,9 +145,380 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/game/end": {
+            "post": {
+                "description": "Game End",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Game End",
+                "parameters": [
+                    {
+                        "description": "Game End",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GameEndRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/game/ranks": {
+            "post": {
+                "description": "Game GetRanks",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Game GetRanks",
+                "parameters": [
+                    {
+                        "description": "Game GetRanks",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GetRanksRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_GetRanksResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/game/start": {
+            "post": {
+                "description": "Game Start",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Game Start",
+                "parameters": [
+                    {
+                        "description": "Game Start",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.GameStartRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/room": {
+            "get": {
+                "description": "Room GetList",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Room GetList",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_RoomGetListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/room/create": {
+            "post": {
+                "description": "Room Create",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Room Create",
+                "parameters": [
+                    {
+                        "description": "Room Create",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RoomCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_RoomCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/room/join": {
+            "post": {
+                "description": "Room Join",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Room Join",
+                "parameters": [
+                    {
+                        "description": "Room Join",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RoomJoinRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
+        },
+        "/room/leave": {
+            "post": {
+                "description": "Room Leave",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Room"
+                ],
+                "summary": "Room Leave",
+                "parameters": [
+                    {
+                        "description": "Room Leave",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.RoomLeaveRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/response.BaseResponse-response_Empty"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "entities.Room": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "isPlaying": {
+                    "type": "boolean"
+                },
+                "roomName": {
+                    "type": "string"
+                },
+                "user1": {
+                    "$ref": "#/definitions/entities.User"
+                },
+                "user2": {
+                    "$ref": "#/definitions/entities.User"
+                }
+            }
+        },
+        "entities.Score": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "user1": {
+                    "$ref": "#/definitions/entities.User"
+                },
+                "user2": {
+                    "$ref": "#/definitions/entities.User"
+                }
+            }
+        },
+        "entities.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "request.AuthLoginRequest": {
             "type": "object",
             "properties": {
@@ -169,6 +540,57 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.GameEndRequest": {
+            "type": "object",
+            "properties": {
+                "roomId": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.GameStartRequest": {
+            "type": "object",
+            "properties": {
+                "roomId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.GetRanksRequest": {
+            "type": "object",
+            "properties": {
+                "page": {
+                    "type": "integer"
+                }
+            }
+        },
+        "request.RoomCreateRequest": {
+            "type": "object",
+            "properties": {
+                "roomName": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RoomJoinRequest": {
+            "type": "object",
+            "properties": {
+                "roomId": {
+                    "type": "string"
+                }
+            }
+        },
+        "request.RoomLeaveRequest": {
+            "type": "object",
+            "properties": {
+                "roomId": {
                     "type": "string"
                 }
             }
@@ -215,8 +637,101 @@ const docTemplate = `{
                 }
             }
         },
+        "response.BaseResponse-response_GetRanksResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.GetRanksResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "ok": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.BaseResponse-response_RoomCreateResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.RoomCreateResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "ok": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "response.BaseResponse-response_RoomGetListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/response.RoomGetListResponse"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "ok": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
         "response.Empty": {
             "type": "object"
+        },
+        "response.GetRanksResponse": {
+            "type": "object",
+            "properties": {
+                "scores": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entities.Score"
+                    }
+                }
+            }
+        },
+        "response.RoomCreateResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "isPlaying": {
+                    "type": "boolean"
+                },
+                "roomName": {
+                    "type": "string"
+                },
+                "user1": {
+                    "$ref": "#/definitions/entities.User"
+                },
+                "user2": {
+                    "$ref": "#/definitions/entities.User"
+                }
+            }
+        },
+        "response.RoomGetListResponse": {
+            "type": "object",
+            "properties": {
+                "rooms": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entities.Room"
+                    }
+                }
+            }
         }
     }
 }`
@@ -224,7 +739,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "https://jhseodev1.site",
+	Host:             "jhseodev1.site",
 	BasePath:         "/api",
 	Schemes:          []string{"https"},
 	Title:            "KHUTHON2023 API",
