@@ -58,6 +58,8 @@ func WebsocketConnectionLoop(hub *Hub, conn *ws.Conn) {
 		var messageData MessageData
 		err := conn.ReadJSON(&messageData)
 
+		fmt.Printf("%s user sent %s message on %s\n", user, messageData.Type, session)
+
 		if err != nil {
 			if ws.IsUnexpectedCloseError(err, ws.CloseGoingAway, ws.CloseAbnormalClosure) {
 				fmt.Println("read error:", err)

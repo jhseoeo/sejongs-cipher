@@ -2,6 +2,7 @@ package gameWs
 
 import (
 	"errors"
+	"fmt"
 	"sync"
 
 	"github.com/gofiber/contrib/websocket"
@@ -16,8 +17,7 @@ type Session struct {
 
 // Set of channels
 type Hub struct {
-	mutex   sync.RWMutex
-	session map[SessionName]Session
+	session sync.Map
 }
 
 type MessageData struct {
@@ -27,56 +27,65 @@ type MessageData struct {
 
 func CreateHub() *Hub {
 	hub := Hub{
-		session: make(map[SessionName]Session),
+		session: sync.Map{},
 	}
 
 	return &hub
 }
 
 func (h *Hub) JoinTetrisUser(sessionName SessionName, conn *websocket.Conn) error {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
-	session, ok := h.session[sessionName]
-	if !ok {
-		session = Session{
-			TetrisUser: conn,
-		}
+	session, ok := h.session.Load(sessionName)
+	if ok {
+		session.(*Session).TetrisUser = conn
+		h.session.Store(sessionName, session)
 	} else {
-		session.TetrisUser = conn
-		h.session[sessionName] = session
+		var newSession Session
+		newSession.TetrisUser = conn
+		h.session.Store(sessionName, &newSession)
 	}
+	fmt.Println("session", session, sessionName)
 
 	return nil
 }
 
 func (h *Hub) JoinWordGuessUser(sessionName SessionName, conn *websocket.Conn) error {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
-	session, ok := h.session[sessionName]
-	if !ok {
-		session = Session{
-			WordGuessUser: conn,
-		}
+	session, ok := h.session.Load(sessionName)
+	if ok {
+		session.(*Session).WordGuessUser = conn
+		h.session.Store(sessionName, session)
 	} else {
-		session.WordGuessUser = conn
-		h.session[sessionName] = session
+		var newSession Session
+		newSession.WordGuessUser = conn
+		h.session.Store(sessionName, &newSession)
 	}
 
 	return nil
 }
 
 func (h *Hub) SendTetrisMessage(session SessionName, message MessageData) error {
-	h.mutex.RLock()
-	defer h.mutex.RUnlock()
-
-	sessionData, ok := h.session[session]
+	sessionData, ok := h.session.Load(session)
 	if !ok {
 		return errors.New("session not found")
 	}
-	if sessionData.WordGuessUser == nil {
-		return errors.New("wordGuess user not found")
+	if sessionData.(*Session).WordGuessUser == nil {
+		return errors.New("wordguess user not found")
 	}
-	err := sessionData.TetrisUser.WriteJSON(message)
+	err := sessionData.(*Session).WordGuessUser.WriteJSON(message)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (h *Hub) SendWordGuessMessage(session SessionName, message MessageData) error {
+	sessionData, ok := h.session.Load(session)
+	if !ok {
+		return errors.New("session not found")
+	}
+	if sessionData.(*Session).TetrisUser == nil {
+		return errors.New("tetris user not found")
+	}
+	err := sessionData.(*Session).TetrisUser.WriteJSON(message)
 	if err != nil {
 		return err
 	}
@@ -84,15 +93,17 @@ func (h *Hub) SendTetrisMessage(session SessionName, message MessageData) error 
 }
 
 func (h *Hub) LeaveUser(sessionName SessionName) error {
-	h.mutex.Lock()
-	defer h.mutex.Unlock()
-
-	session, ok := h.session[sessionName]
+	sessionData, ok := h.session.Load(sessionName)
 	if !ok {
 		return errors.New("session not found")
 	}
-	session.TetrisUser.Close()
-	session.WordGuessUser.Close()
-	delete(h.session, sessionName)
+	session := sessionData.(*Session)
+	if session.TetrisUser != nil {
+		session.TetrisUser.Close()
+	}
+	if session.WordGuessUser != nil {
+		session.WordGuessUser.Close()
+	}
+	h.session.Delete(sessionName)
 	return nil
 }

@@ -6,7 +6,5 @@ import (
 )
 
 func NewCORSMiddleware() fiber.Handler {
-	return cors.New(cors.Config{
-		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
-	})
+	return cors.New(cors.ConfigDefault)
 }
