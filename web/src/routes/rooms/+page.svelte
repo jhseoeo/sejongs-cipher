@@ -69,8 +69,8 @@
 			<Actions style="display: flex; flex-direction: row-reverse">
 				<Button
 					on:click={() => {
-						if (i === 0) location.href = '/tetris/?roomId=asd';
-						else location.href = '/wordguess/?roomId=asd';
+						if (i === 0) location.href = '/tetrisgame/?roomId=asd';
+						else location.href = '/wordguessgame/?roomId=asd';
 					}}
 				>
 					<Label>참가</Label>
