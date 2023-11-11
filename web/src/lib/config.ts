@@ -1,4 +1,4 @@
 export const config = {
-	apiHost: 'http://localhost:8000',
-	apiWsHost: 'ws://localhost:8000',
+	apiHost: 'https://jhseodev1.site',
+	apiWsHost: 'wss://jhseodev1.site',
 };

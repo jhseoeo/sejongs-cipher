@@ -1,0 +1,1 @@
+import{c as t}from"./config.bde74fe0.js";const n=async()=>await fetch(t.apiHost+"/api/auth/check",{method:"GET",headers:{"Content-Type":"application/json",Authorization:"Bearer "+localStorage.getItem("token")}}).then(e=>e.status===200).catch(e=>(console.log(e),!1));export{n as c};
