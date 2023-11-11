@@ -40,9 +40,6 @@ export class WebRTC {
 		this.peerConnection.ontrack = (e) => {
 			this.gotRemoteStream(e);
 		};
-		this.localStream?.getTracks().forEach((track) => {
-			this.peerConnection?.addTrack(track, this.localStream!);
-		});
 		this.serverConnection = new WebSocket(address);
 		this.serverConnection.onmessage = this.gotMessageFromServer;
 		this.serverConnection.onopen = async () => {
@@ -50,6 +47,9 @@ export class WebRTC {
 				.getDisplayMedia(constraints)
 				.then((stream) => {
 					this.localStream = stream;
+					this.localStream?.getTracks().forEach((track) => {
+						this.peerConnection?.addTrack(track, this.localStream!);
+					});
 				})
 				.catch((e) => {
 					this.errorHandler(e);

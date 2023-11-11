@@ -22,6 +22,9 @@ func wireUp(app *fiber.App) error {
 		return errors.Errorf("failed to connect to database: %v", err)
 	}
 	app.Use(middlewares.NewCORSMiddleware())
+	app.Static("/", "./public")
+	app.Static("/", "./../public")
+	app.Static("/", "./../../public")
 
 	api := app.Group("/api")
 	jwtSecret := os.Getenv("JWT_SECRET")

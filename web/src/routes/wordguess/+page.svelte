@@ -42,7 +42,7 @@
 		width: 700px;
 		height: 100vh;
 		border-left: 1px solid white;
-		right: 0;
+		left: 0;
 		margin-top: auto;
 		margin-bottom: auto;
 		z-index: 1000;
