@@ -1,4 +1,4 @@
-FROM golang:1.20-alpine AS builder
+FROM golang:1.20 AS builder
 
 # Move to working directory (/build).
 WORKDIR /build
@@ -14,7 +14,8 @@ COPY . .
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
 RUN go build -ldflags="-s -w" -o ./ ./...
 
-FROM scratch
+FROM alpine:3.9
+RUN apk add ca-certificates
 
 # Copy binary and config files from /build to root folder of scratch container.
 COPY --from=builder ["/build/app", "/build/.env", "/"]
