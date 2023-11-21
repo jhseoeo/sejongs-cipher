@@ -21,15 +21,17 @@ func NewGameService() *GameService {
 }
 
 // JoinTetrisUser joins tetris user to session1
-func (h *GameService) JoinTetrisUser(sessionName string, conn ws.Ws) error {
+func (h *GameService) JoinTetrisUser(sessionName string, userName string, conn ws.Ws) error {
 	sessionData, ok := h.session.Load(sessionName)
 	if ok {
 		session := sessionData.(*entities.GameSession)
 		session.TetrisUser = conn
+		session.TetrisUserName = userName
 		h.session.Store(sessionName, session)
 	} else {
 		var newSession entities.GameSession
 		newSession.TetrisUser = conn
+		newSession.TetrisUserName = userName
 		if newSession.WordGuessUser != nil {
 			newSession.TetrisUser.WriteJSON(entities.GameMessage{
 				Type: "join",
@@ -42,13 +44,15 @@ func (h *GameService) JoinTetrisUser(sessionName string, conn ws.Ws) error {
 }
 
 // JoinWordGuessUser joins wordguess user to session
-func (h *GameService) JoinWordGuessUser(sessionName string, conn ws.Ws) error {
-	session, ok := h.session.Load(sessionName)
+func (h *GameService) JoinWordGuessUser(sessionName string, userName string, conn ws.Ws) error {
+	sessionData, ok := h.session.Load(sessionName)
 	if ok {
-		session.(*entities.GameSession).WordGuessUser = conn
+		session := sessionData.(*entities.GameSession)
+		session.WordGuessUser = conn
+		session.WordguessUserName = userName
 		h.session.Store(sessionName, session)
-		if session.(*entities.GameSession).TetrisUser != nil {
-			session.(*entities.GameSession).TetrisUser.WriteJSON(entities.GameMessage{
+		if session.TetrisUser != nil {
+			session.TetrisUser.WriteJSON(entities.GameMessage{
 				Type: "join",
 				Data: "word guess user has joined",
 			})
@@ -56,24 +60,36 @@ func (h *GameService) JoinWordGuessUser(sessionName string, conn ws.Ws) error {
 	} else {
 		var newSession entities.GameSession
 		newSession.WordGuessUser = conn
+		newSession.WordguessUserName = userName
 		h.session.Store(sessionName, &newSession)
 	}
 
 	return nil
 }
 
+// GetUserName gets username of user in session
+func (h *GameService) GetUserName(sessionId string, conn ws.Ws) (tetrisUsername string, wordguessUsername string, err error) {
+	sessionData, ok := h.session.Load(sessionId)
+	if !ok {
+		return "", "", errors.New("session not found")
+	}
+
+	session := sessionData.(*entities.GameSession)
+	if session.TetrisUser == conn || session.WordGuessUser == conn {
+		return session.TetrisUserName, session.WordguessUserName, nil
+	}
+
+	return "", "", nil
+}
+
 // RelayMessage relays message to other user in session
 func (h *GameService) RelayMessage(sessionName string, conn ws.Ws, message entities.GameMessage) error {
+	// get session
 	sessionData, ok := h.session.Load(sessionName)
 	if !ok {
 		return errors.New("session not found")
 	}
-
-	// get session
 	session := sessionData.(*entities.GameSession)
-	if !ok {
-		return errors.New("session not found")
-	}
 
 	// check user type
 	var userType string
@@ -90,7 +106,7 @@ func (h *GameService) RelayMessage(sessionName string, conn ws.Ws, message entit
 		if session.WordGuessUser == nil {
 			return errors.New("wordguess user not found")
 		}
-		err := sessionData.(*entities.GameSession).WordGuessUser.WriteJSON(message)
+		err := session.WordGuessUser.WriteJSON(message)
 		if err != nil {
 			return err
 		}
@@ -99,7 +115,7 @@ func (h *GameService) RelayMessage(sessionName string, conn ws.Ws, message entit
 		if session.TetrisUser == nil {
 			return errors.New("tetris user not found")
 		}
-		err := sessionData.(*entities.GameSession).TetrisUser.WriteJSON(message)
+		err := session.TetrisUser.WriteJSON(message)
 		if err != nil {
 			return err
 		}

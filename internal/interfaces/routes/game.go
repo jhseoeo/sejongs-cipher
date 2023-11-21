@@ -10,12 +10,14 @@ import (
 )
 
 type GameRoutes struct {
-	gameUsecase *usecase.GameUsecase
+	gameUsecase      *usecase.GameUsecase
+	signalingUsecase *usecase.SignalingUsecase
 }
 
-func NewGameRoutes(gameUsecase *usecase.GameUsecase) *GameRoutes {
+func NewGameRoutes(gameUsecase *usecase.GameUsecase, signalingUsecase *usecase.SignalingUsecase) *GameRoutes {
 	return &GameRoutes{
-		gameUsecase: gameUsecase,
+		gameUsecase:      gameUsecase,
+		signalingUsecase: signalingUsecase,
 	}
 }
 
@@ -52,10 +54,16 @@ func (r *GameRoutes) Ranks(c *fiber.Ctx) error {
 // @Router /game/signaling [get]
 func (r *GameRoutes) Signaling() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		// handler := websocketHandler.NewWebsocketHandlerBuilder().
-		// 	OnJoin().
-		// 	OnLeave().
-		// 	OnMessageType()
+		sessionId := ws.Params("sessionId")
+		userId := ws.Query("userId")
+		handler := websocketHandler.NewWebsocketHandlerBuilder().
+			OnJoin(r.signalingUsecase.Join).
+			OnLeave(r.signalingUsecase.Leave).
+			OnDefault(r.signalingUsecase.Relay).
+			Build()
+
+		handler(sessionId, userId, ws)
+
 	})
 }
 

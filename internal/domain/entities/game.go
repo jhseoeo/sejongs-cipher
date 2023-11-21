@@ -5,8 +5,10 @@ import (
 )
 
 type GameSession struct {
-	TetrisUser    ws.Ws
-	WordGuessUser ws.Ws
+	TetrisUser        ws.Ws
+	WordGuessUser     ws.Ws
+	TetrisUserName    string
+	WordguessUserName string
 }
 
 type GameMessage struct {

@@ -6,7 +6,7 @@ type ReadMessage struct {
 	Type     string      `json:"type"`
 	UserType string      `json:"userType,omitempty"`
 	Word     string      `json:"word,omitempty"`
-	Score    string      `json:"score,omitempty"`
+	Score    int         `json:"score,omitempty"`
 	Data     interface{} `json:"data"`
 }
 

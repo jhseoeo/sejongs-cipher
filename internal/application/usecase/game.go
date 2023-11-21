@@ -43,7 +43,7 @@ func (g *GameUsecase) Join(
 	message wsmessage.ReadMessage,
 ) (*wsmessage.WriteMessage, error) {
 	if message.UserType == "tetris" {
-		err := g.gameService.JoinTetrisUser(sessionId, conn)
+		err := g.gameService.JoinTetrisUser(sessionId, userId, conn)
 		if err != nil {
 			return &wsmessage.WriteMessage{
 				Status: 500,
@@ -53,7 +53,7 @@ func (g *GameUsecase) Join(
 			}, errors.Errorf("failed to join tetris user: %w", err)
 		}
 	} else if message.UserType == "wordguess" {
-		err := g.gameService.JoinWordGuessUser(sessionId, conn)
+		err := g.gameService.JoinWordGuessUser(sessionId, userId, conn)
 		if err != nil {
 			return &wsmessage.WriteMessage{
 				Status: 500,
@@ -76,17 +76,6 @@ func (g *GameUsecase) Join(
 		Ok:     true,
 		Type:   "join",
 	}, nil
-}
-
-// Start starts a game
-func (g *GameUsecase) Start(
-	ctx context.Context,
-	conn *websocket.Conn,
-	sessionId string,
-	userId string,
-	message wsmessage.ReadMessage,
-) (*wsmessage.WriteMessage, error) {
-	return &wsmessage.WriteMessage{}, nil
 }
 
 // Leave leaves a game
@@ -133,40 +122,47 @@ func (g *GameUsecase) Relay(
 		}, errors.Errorf("failed to relay message: %w", err)
 	}
 
-	return &wsmessage.WriteMessage{}, nil
+	return &wsmessage.WriteMessage{
+		Status: 200,
+		Ok:     true,
+		Type:   "relay",
+	}, nil
 }
 
 // // End ends a game
-// func (g *GameUsecase) End(ctx context.Context, req request.GameEndRequest, userId uuid.UUID) (response.BaseResponse[*response.Empty], error) {
-// 	// get user
-// 	user, err := g.userService.Get(ctx, userId)
-// 	if err != nil {
-// 		return response.NewErrorResponse[*response.Empty](500, "Internal Server Error"),
-// 			errors.Errorf("failed to get user: %w", err)
-// 	}
+func (g *GameUsecase) End(
+	ctx context.Context,
+	conn *websocket.Conn,
+	sessionId string,
+	userId string,
+	message wsmessage.ReadMessage,
+) (*wsmessage.WriteMessage, error) {
+	tetrisUsername, wordguessUsername, err := g.gameService.GetUserName(sessionId, conn)
+	if err != nil {
+		return &wsmessage.WriteMessage{
+			Status: 500,
+			Ok:     false,
+			Type:   "end",
+			Data:   fmt.Sprintf("failed to get user name: %+v", err),
+		}, errors.Errorf("failed to get user name: %w", err)
+	}
 
-// 	// get room and check if user is allowed to end game
-// 	room, err := g.roomService.Get(ctx, req.RoomId)
-// 	if err != nil {
-// 		return response.NewErrorResponse[*response.Empty](500, "Internal Server Error"),
-// 			errors.Errorf("failed to get room: %w", err)
-// 	}
+	err = g.scoreService.CreateScore(ctx, tetrisUsername, wordguessUsername, message.Score)
+	if err != nil {
+		return &wsmessage.WriteMessage{
+			Status: 500,
+			Ok:     false,
+			Type:   "end",
+			Data:   fmt.Sprintf("failed to create score: %+v", err),
+		}, errors.Errorf("failed to create score: %w", err)
+	}
 
-// 	// end game
-// 	err = g.roomService.EndGame(ctx, req.RoomId, user)
-// 	if err != nil {
-// 		return response.NewErrorResponse[*response.Empty](500, "Internal Server Error"),
-// 			errors.Errorf("failed to end game: %w", err)
-// 	}
-
-// 	// create score
-// 	err = g.scoreService.CreateScore(ctx, &room.User1, room.User2, req.Score)
-// 	if err != nil {
-// 		return response.NewErrorResponse[*response.Empty](500, "Internal Server Error"),
-// 			errors.Errorf("failed to create score: %w", err)
-// 	}
-// 	return response.NewEmptyBaseResponse[*response.Empty](), nil
-// }
+	return &wsmessage.WriteMessage{
+		Status: 200,
+		Ok:     true,
+		Type:   "end",
+	}, nil
+}
 
 // VerifyWord verifies a word
 func (g *GameUsecase) VerifyWord(
