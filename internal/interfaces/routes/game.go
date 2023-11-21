@@ -3,90 +3,29 @@ package routes
 import (
 	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/request"
 	"github.com/jhseoeo/khuthon2023/internal/application/dto/response"
 	"github.com/jhseoeo/khuthon2023/internal/application/usecase"
-	"github.com/jhseoeo/khuthon2023/pkg/gameWs"
-	"github.com/jhseoeo/khuthon2023/pkg/signaling"
+	"github.com/jhseoeo/khuthon2023/internal/interfaces/websocketHandler"
 )
 
 type GameRoutes struct {
-	signalingHub *signaling.Hub
-	gameWsHub    *gameWs.Hub
-	gameUsecase  *usecase.GameUsecase
+	gameUsecase *usecase.GameUsecase
 }
 
 func NewGameRoutes(gameUsecase *usecase.GameUsecase) *GameRoutes {
 	return &GameRoutes{
-		signalingHub: signaling.CreateHub(),
-		gameWsHub:    gameWs.CreateHub(),
-		gameUsecase:  gameUsecase,
+		gameUsecase: gameUsecase,
 	}
 }
 
-// Game Start godoc
-// @Summary Game Start
-// @Description Game Start
+// Ranks godoc
+// @Summary Get ranks
+// @Description Get ranks
 // @Tags Game
 // @Accept json
 // @Produce json
-// @Param body body request.GameStartRequest true "Game Start"
-// @Success 200 {object} response.BaseResponse[response.Empty]
-// @Failure 400 {object} response.BaseResponse[response.Empty]
-// @Failure 500 {object} response.BaseResponse[response.Empty]
-// @Router /game/start [post]
-func (r *GameRoutes) Start(c *fiber.Ctx) error {
-	var req request.GameStartRequest
-	err := c.BodyParser(&req)
-	if err != nil {
-		return c.Status(400).JSON(response.NewErrorResponse[*response.Empty](400, "Bad Request"))
-	}
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	userId := claims["id"].(uuid.UUID)
-	res, err := r.gameUsecase.Start(c.UserContext(), req, userId)
-	if err != nil {
-		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
-	}
-	return c.JSON(res)
-}
-
-// Game End godoc
-// @Summary Game End
-// @Description Game End
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Param body body request.GameEndRequest true "Game End"
-// @Success 200 {object} response.BaseResponse[response.Empty]
-// @Failure 400 {object} response.BaseResponse[response.Empty]
-// @Failure 500 {object} response.BaseResponse[response.Empty]
-// @Router /game/end [post]
-func (r *GameRoutes) End(c *fiber.Ctx) error {
-	var req request.GameEndRequest
-	err := c.BodyParser(&req)
-	if err != nil {
-		return c.Status(400).JSON(response.NewErrorResponse[*response.Empty](400, "Bad Request"))
-	}
-	user := c.Locals("user").(*jwt.Token)
-	claims := user.Claims.(jwt.MapClaims)
-	userId := claims["id"].(uuid.UUID)
-	res, err := r.gameUsecase.End(c.UserContext(), req, userId)
-	if err != nil {
-		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
-	}
-	return c.JSON(res)
-}
-
-// Game GetRanks godoc
-// @Summary Game GetRanks
-// @Description Game GetRanks
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Param body body request.GetRanksRequest true "Game GetRanks"
+// @Param body body request.GetRanksRequest true "body"
 // @Success 200 {object} response.BaseResponse[response.GetRanksResponse]
 // @Failure 400 {object} response.BaseResponse[response.Empty]
 // @Failure 500 {object} response.BaseResponse[response.Empty]
@@ -95,6 +34,7 @@ func (r *GameRoutes) Ranks(c *fiber.Ctx) error {
 	var req request.GetRanksRequest
 	err := c.BodyParser(&req)
 	if err != nil {
+
 		return c.Status(400).JSON(response.NewErrorResponse[*response.Empty](400, "Bad Request"))
 	}
 	res, err := r.gameUsecase.GetRanks(c.UserContext(), req)
@@ -104,38 +44,54 @@ func (r *GameRoutes) Ranks(c *fiber.Ctx) error {
 	return c.JSON(res)
 }
 
-// Game VerifyWord godoc
-// @Summary Game VerifyWord
-// @Description Game VerifyWord
+// Signaling godoc
+// @Summary Signaling Channel
+// @Description Websocket Signaling Server for WebRTC Communication
+// @Description Use this endpoint as signaling server url
 // @Tags Game
-// @Accept json
-// @Produce json
-// @Param body body request.GameTestWordRequest true "Game VerifyWord"
-// @Success 200 {object} response.BaseResponse[response.GameTestWordResponse]
-// @Failure 400 {object} response.BaseResponse[response.Empty]
-// @Failure 500 {object} response.BaseResponse[response.Empty]
-// @Router /game/verify [post]
-func (r *GameRoutes) VerifyWord(c *fiber.Ctx) error {
-	var req request.GameTestWordRequest
-	err := c.BodyParser(&req)
-	if err != nil {
-		return c.Status(400).JSON(response.NewErrorResponse[*response.Empty](400, "Bad Request"))
-	}
-	res, err := r.gameUsecase.VerifyWord(c.UserContext(), req)
-	if err != nil {
-		return c.Status(500).JSON(response.NewErrorResponse[*response.Empty](500, "Internal Server Error"))
-	}
-	return c.JSON(res.Data)
-}
-
+// @Router /game/signaling [get]
 func (r *GameRoutes) Signaling() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		signaling.WebsocketConnectionLoop(r.signalingHub, ws)
+		// handler := websocketHandler.NewWebsocketHandlerBuilder().
+		// 	OnJoin().
+		// 	OnLeave().
+		// 	OnMessageType()
 	})
 }
 
+// Game-Server godoc
+// @Summary Game Server
+// @Description Websocket Endpoint for In-game Communication
+// @Description Use this endpoint as signaling server url
+// @Tags Game
+// @Router /game/ws [get]
 func (r *GameRoutes) WS() func(c *fiber.Ctx) error {
 	return websocket.New(func(ws *websocket.Conn) {
-		gameWs.WebsocketConnectionLoop(r.gameWsHub, ws)
+		sessionId := ws.Params("sessionId")
+		userId := ws.Query("userId")
+
+		handler := websocketHandler.NewWebsocketHandlerBuilder().
+
+			// Req: { "type": "join", "userType": "tetris" | "wordguess" }
+			// tetris 유저는 wordguess 유저가 들어오면 받음 -> { "type": "join", "data": "wordguess user has joined" }
+			// wordguess 유저가 이미 들어와 있으면, 들어옴과 동시에 받음 -> { "type": "join", "data": "wordguess user has joined" }
+			OnJoin(r.gameUsecase.Join).
+
+			// 그냥 나가면 됨
+			// 상대편 유저에게 전달: { "type": "leave", "data": "tetris|wordguess user has left" }
+			OnLeave(r.gameUsecase.Leave).
+
+			// Req: { "type": "verify", "word": "단어" }
+			// Res: { "type": "verify", "isCorrect": true | false, "description": "설명" }
+			OnMessageType("verify", r.gameUsecase.VerifyWord).
+
+			// Req: { "type": "end", score: 점수(숫자) }
+			OnMessageType("end", r.gameUsecase.VerifyWord).
+
+			// Req: { "type": "위 제외 아무거나", "data": 아무거나 } -> 그대로 relay
+			OnDefault(r.gameUsecase.Relay).
+			Build()
+
+		handler(sessionId, userId, ws)
 	})
 }

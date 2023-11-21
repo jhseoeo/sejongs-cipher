@@ -6,5 +6,6 @@ PROJECT_DIR="$(cd "$(dirname "$0")" && pwd)/.."
 
 docker build -t sejongs-cipher $PROJECT_DIR
 docker tag sejongs-cipher:latest 408047345469.dkr.ecr.ap-northeast-2.amazonaws.com/sejongs-cipher:latest
+aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 408047345469.dkr.ecr.ap-northeast-2.amazonaws.com
 docker push 408047345469.dkr.ecr.ap-northeast-2.amazonaws.com/sejongs-cipher:latest
 aws ecs update-service --cluster $ECS_CLUSTER --service $ECS_SERVICE --force-new-deployment

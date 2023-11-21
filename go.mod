@@ -8,7 +8,6 @@ require (
 	github.com/gofiber/fiber/v2 v2.50.0
 	github.com/gofiber/swagger v0.1.14
 	github.com/gofiber/websocket/v2 v2.2.1
-	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.4.0
 	github.com/joho/godotenv v1.5.1
 	github.com/swaggo/swag v1.16.2

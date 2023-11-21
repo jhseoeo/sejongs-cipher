@@ -1,8 +1,7 @@
 package response
 
 type response interface {
-	*Empty | *AuthLoginResponse | *GetRanksResponse | *RoomCreateResponse |
-		*RoomGetListResponse | *GameTestWordResponse
+	*Empty | *GetRanksResponse | *GameTestWordResponse
 }
 
 type Empty struct{}

@@ -7,6 +7,6 @@ import (
 )
 
 type ScoreServicePort interface {
-	CreateScore(ctx context.Context, user1, user2 *entities.User, score int) error
+	CreateScore(ctx context.Context, tetrisUsername string, wordguessUsername string, score int) error
 	GetScoreList(ctx context.Context, page int) ([]entities.Score, error)
 }

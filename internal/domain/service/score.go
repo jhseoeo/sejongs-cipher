@@ -24,13 +24,17 @@ func NewScoreService(scoreRepository repository.ScoreRepository) *ScoreService {
 }
 
 // CreateScore creates a score
-func (s *ScoreService) CreateScore(ctx context.Context, user1, user2 *entities.User, score int) error {
+func (s *ScoreService) CreateScore(
+	ctx context.Context,
+	tetrisUsername string,
+	wordguessUsername string,
+	score int) error {
 	id := uuid.New()
 	score_ := &entities.Score{
-		Id:    id,
-		User1: *user1,
-		User2: *user2,
-		Score: score,
+		Id:                id,
+		TetrisUsername:    tetrisUsername,
+		WordguessUsername: wordguessUsername,
+		Score:             score,
 	}
 	err := s.scoreRepository.Create(ctx, score_)
 	if err != nil {
